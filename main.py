@@ -5,7 +5,8 @@ import imageio
 import torch
 import numpy as np
 from tqdm import tqdm
-from src.patch_utils import encode_frame, decode_frame
+from src.vpcc_enc import encode_frame
+from src.vpcc_dec import decode_frame
 from src.ptcl_utils import load_ply_sequence, downsample
 from src.rendering_utils import render_sequence_spiral
 
@@ -28,16 +29,15 @@ if __name__=="__main__":
         for fi,(pts,cols) in enumerate(tqdm(pts_seq)):
             if args.num_samples > 0:
                 pts, cols = downsample(pts, cols, args.num_samples)
-                print(f"Scale: pts max {pts.max()}, min {pts.min()}, cols max {cols.max()}, min {cols.min()}")
-                sequence = [(pts, cols)]
-                render_sequence_spiral(
-                    sequence,
-                    out_dir=out_dir,
-                    device="cuda",
-                    n_frames=len(sequence),
-                    image_size=512,
-                    filename="input",
-                )
+            sequence = [(pts, cols)]
+            render_sequence_spiral(
+                sequence,
+                out_dir=out_dir,
+                device="cuda",
+                n_frames=len(sequence),
+                image_size=512,
+                filename="input",
+            )
             encode_frame(pts, cols, out_dir, fi)
 
         print("Encoding finished. Use ffmpeg to compress PNGs into HEVC/AV1 videos.")
